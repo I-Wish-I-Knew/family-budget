@@ -1,15 +1,15 @@
-package com.shaygorodskaia.familybudget.family;
+package com.shaygorodskaia.familybudget.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.util.Collection;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "FAMILIES")
 public class Family {
@@ -19,4 +19,7 @@ public class Family {
     private Long id;
     @Column(name = "family_name", length = 200, nullable = false)
     private String name;
+    @ElementCollection
+    @CollectionTable(name = "family_members", joinColumns = @JoinColumn(name = "user_id"))
+    private Collection<Long> users;
 }

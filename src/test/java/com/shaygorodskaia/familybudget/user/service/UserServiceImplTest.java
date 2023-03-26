@@ -1,11 +1,12 @@
 package com.shaygorodskaia.familybudget.user.service;
 
-import com.shaygorodskaia.familybudget.family.Family;
-import com.shaygorodskaia.familybudget.family.FamilyRepository;
-import com.shaygorodskaia.familybudget.user.User;
-import com.shaygorodskaia.familybudget.user.UserDto;
-import com.shaygorodskaia.familybudget.user.UserMapper;
-import com.shaygorodskaia.familybudget.user.UserRepository;
+import com.shaygorodskaia.familybudget.dto.UserDto;
+import com.shaygorodskaia.familybudget.mapper.UserMapper;
+import com.shaygorodskaia.familybudget.model.Family;
+import com.shaygorodskaia.familybudget.model.User;
+import com.shaygorodskaia.familybudget.repository.FamilyRepository;
+import com.shaygorodskaia.familybudget.repository.UserRepository;
+import com.shaygorodskaia.familybudget.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,9 +45,10 @@ class UserServiceImplTest {
         User user1 = repository.save(createUser(1L));
         User user2 = repository.save(createUser(2L));
         User user3 = repository.save(createUser(3L));
-        Family family = familyRepository.save(new Family(null, "family"));
-        user1.setFamily(family);
-        user2.setFamily(family);
+        Family family = familyRepository.save(new Family(1L, "family", new ArrayList<>()));
+
+        familyRepository.addUser(family.getId(), user1.getId());
+        familyRepository.addUser(family.getId(), user2.getId());
 
         List<UserDto> users = service.getAll(family.getId());
 
@@ -59,9 +62,9 @@ class UserServiceImplTest {
     void save() {
         UserDto userDto = UserMapper.toUserDto(createUser(1L));
         UserDto savedUser = service.save(userDto);
-        Optional<User> userRepo = repository.findById(savedUser.getId());
+        Optional<User> fromRepo = repository.findById(savedUser.getId());
 
-        assertThat(userRepo).isNotEmpty()
+        assertThat(fromRepo).isNotEmpty()
                 .contains(UserMapper.toUser(savedUser));
     }
 
@@ -86,11 +89,11 @@ class UserServiceImplTest {
     @Test
     void delete() {
         User user = repository.save(createUser(1L));
-        Optional<User> userRepo = repository.findById(user.getId());
+        Optional<User> fromRepo = repository.findById(user.getId());
 
-        assertThat(userRepo).isNotEmpty();
+        assertThat(fromRepo).isNotEmpty();
 
-        service.delete(userRepo.get().getId());
+        service.delete(fromRepo.get().getId());
         Optional<User> deletedUser = repository.findById(user.getId());
 
         assertThat(deletedUser).isEmpty();
