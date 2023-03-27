@@ -12,8 +12,14 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(NotFoundException e) {
-        log.error(e.getMessage(), e);
         return new ErrorResponse(e.getMessage(),
                 HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleThrowable(Throwable e) {
+        return new ErrorResponse(e.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

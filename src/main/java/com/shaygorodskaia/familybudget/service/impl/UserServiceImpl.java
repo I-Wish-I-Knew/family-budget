@@ -1,11 +1,12 @@
-package com.shaygorodskaia.familybudget.user.service;
+package com.shaygorodskaia.familybudget.service.impl;
 
+import com.shaygorodskaia.familybudget.dto.UserDto;
 import com.shaygorodskaia.familybudget.exception.NotFoundException;
-import com.shaygorodskaia.familybudget.family.FamilyRepository;
-import com.shaygorodskaia.familybudget.user.User;
-import com.shaygorodskaia.familybudget.user.UserDto;
-import com.shaygorodskaia.familybudget.user.UserMapper;
-import com.shaygorodskaia.familybudget.user.UserRepository;
+import com.shaygorodskaia.familybudget.mapper.UserMapper;
+import com.shaygorodskaia.familybudget.model.User;
+import com.shaygorodskaia.familybudget.repository.FamilyRepository;
+import com.shaygorodskaia.familybudget.repository.UserRepository;
+import com.shaygorodskaia.familybudget.service.UserService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.shaygorodskaia.familybudget.util.Constants.USER_NOT_FOUND;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,7 +28,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto get(Long id) {
         User user = repository.findById(id).orElseThrow(() ->
-                new NotFoundException(String.format("User %d was not found.", id)));
+                new NotFoundException(String.format(USER_NOT_FOUND, id)));
         return UserMapper.toUserDto(user);
     }
 
@@ -50,16 +53,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(Long id, UserDto userDto) {
         User user = repository.findById(id).orElseThrow(() ->
-                new NotFoundException(String.format("User %d was not found.", id)));
+                new NotFoundException(String.format(USER_NOT_FOUND, id)));
 
         if (!StringUtils.isBlank(userDto.getName())) {
             user.setName(userDto.getName());
         }
         if (!StringUtils.isBlank(userDto.getEmail())) {
             user.setEmail(userDto.getEmail());
-        }
-        if (userDto.getFamily() != null) {
-            user.setFamily(userDto.getFamily());
         }
 
         return UserMapper.toUserDto(repository.save(user));

@@ -1,5 +1,7 @@
-package com.shaygorodskaia.familybudget.user;
+package com.shaygorodskaia.familybudget.mapper;
 
+import com.shaygorodskaia.familybudget.dto.UserDto;
+import com.shaygorodskaia.familybudget.model.User;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -10,7 +12,6 @@ public class UserMapper {
                 .id(userDto.getId())
                 .name(userDto.getName())
                 .email(userDto.getEmail())
-                .family(userDto.getFamily())
                 .build();
     }
 
@@ -19,7 +20,6 @@ public class UserMapper {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
-                .family(user.getFamily())
                 .build();
     }
 }

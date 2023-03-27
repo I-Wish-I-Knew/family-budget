@@ -1,6 +1,5 @@
-package com.shaygorodskaia.familybudget.user;
+package com.shaygorodskaia.familybudget.dto;
 
-import com.shaygorodskaia.familybudget.family.Family;
 import com.shaygorodskaia.familybudget.util.Create;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -19,5 +18,4 @@ public class UserDto {
     @Length(max = 150)
     @Email(regexp = "^[A-Za-z0-9+_.-]+@(.+)$")
     private String email;
-    private Family family;
 }

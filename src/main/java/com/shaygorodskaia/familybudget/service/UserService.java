@@ -1,6 +1,6 @@
-package com.shaygorodskaia.familybudget.user.service;
+package com.shaygorodskaia.familybudget.service;
 
-import com.shaygorodskaia.familybudget.user.UserDto;
+import com.shaygorodskaia.familybudget.dto.UserDto;
 
 import java.util.List;
 
