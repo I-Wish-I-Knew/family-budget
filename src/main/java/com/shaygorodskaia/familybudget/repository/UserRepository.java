@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -16,4 +17,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "right join family_members fm on u.user_id = fm.user_id", nativeQuery = true)
     List<Long> findAllIdByFamilyId(Long familyId);
 
+    Optional<User> findByEmail(String email);
 }

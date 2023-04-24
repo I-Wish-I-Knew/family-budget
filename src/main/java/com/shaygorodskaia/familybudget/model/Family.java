@@ -7,6 +7,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -19,7 +20,6 @@ public class Family {
     private Long id;
     @Column(name = "family_name", length = 200, nullable = false)
     private String name;
-    @ElementCollection
-    @CollectionTable(name = "family_members", joinColumns = @JoinColumn(name = "user_id"))
+    @Transient
     private Collection<Long> users;
 }

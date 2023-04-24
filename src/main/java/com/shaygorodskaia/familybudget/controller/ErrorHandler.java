@@ -1,5 +1,7 @@
-package com.shaygorodskaia.familybudget.exception;
+package com.shaygorodskaia.familybudget.controller;
 
+import com.shaygorodskaia.familybudget.exception.NotFoundException;
+import com.shaygorodskaia.familybudget.model.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,14 +13,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFound(NotFoundException e) {
+    public ErrorResponse handle(NotFoundException e) {
         return new ErrorResponse(e.getMessage(),
                 HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(Throwable e) {
+    public ErrorResponse handle(Throwable e) {
         return new ErrorResponse(e.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
