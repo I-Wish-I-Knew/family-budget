@@ -1,4 +1,4 @@
-package com.shaygorodskaia.familybudget.exception;
+package com.shaygorodskaia.familybudget.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
-@RequestMapping("/families")
+@RequestMapping("/api/families")
 @RequiredArgsConstructor
 public class FamilyController {
 
