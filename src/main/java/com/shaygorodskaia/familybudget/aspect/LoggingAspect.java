@@ -41,7 +41,9 @@ public class LoggingAspect {
 
         Object result = proceedingJoinPoint.proceed();
 
-        log.info("Exit with result {}", result.toString());
+        if (result != null) {
+            log.info("Exit with result {}", result.toString());
+        }
         log.info(SEPARATOR);
 
         return result;

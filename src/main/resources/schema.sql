@@ -17,9 +17,9 @@ CREATE TABLE IF NOT EXISTS FAMILY_MEMBERS (
      family_id  BIGINT NOT NULL,
      CONSTRAINT pk_family_members PRIMARY KEY (user_id, family_id),
      CONSTRAINT fk_family_members_users FOREIGN KEY (user_id)
-         REFERENCES USERS (user_id),
+         REFERENCES USERS (user_id) ON DELETE CASCADE,
      CONSTRAINT fk_family_members_families FOREIGN KEY (family_id)
-        REFERENCES FAMILIES (family_id)
+        REFERENCES FAMILIES (family_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS MONEY_SOURCES (

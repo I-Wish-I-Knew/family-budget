@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import java.util.List;
+import java.util.Collection;
 
 @Data
 @AllArgsConstructor
@@ -14,5 +14,5 @@ public class FamilyDto {
     @NotBlank
     @Length(max = 200)
     private String name;
-    private List<Long> users;
+    private Collection<Long> users;
 }

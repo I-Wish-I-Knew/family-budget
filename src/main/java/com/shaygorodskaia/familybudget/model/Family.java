@@ -3,6 +3,7 @@ package com.shaygorodskaia.familybudget.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
@@ -21,5 +22,5 @@ public class Family {
     @Column(name = "family_name", length = 200, nullable = false)
     private String name;
     @Transient
-    private Collection<Long> users;
+    private Collection<Long> users = new ArrayList<>();
 }
