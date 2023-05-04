@@ -8,10 +8,12 @@ import com.shaygorodskaia.familybudget.repository.FamilyRepository;
 import com.shaygorodskaia.familybudget.repository.UserRepository;
 import com.shaygorodskaia.familybudget.service.FamilyService;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -20,8 +22,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@Sql(scripts = "/schema.sql")
+@SpringBootTest
+@ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class FamilyServiceImplTest {
 
@@ -30,24 +33,35 @@ class FamilyServiceImplTest {
     @Autowired
     private final UserRepository userRepository;
     private final FamilyService service;
+    private User user1;
+    private User user2;
+
+    @BeforeAll
+    void setup() {
+        user1 = userRepository.save(new User(1L, "user1", "user1@email.com", "111111"));
+        user2 = userRepository.save(new User(2L, "user2", "user2@email.com", "11111"));
+    }
 
     @Test
     void save() {
         FamilyDto familyDto = getFamilyDto();
-        FamilyDto savedFamily = service.save(familyDto);
+        FamilyDto savedFamily = service.save(familyDto, user1.getId());
         Optional<Family> fromRepo = repository.findById(savedFamily.getId());
 
         assertThat(fromRepo).isNotEmpty()
                 .contains(FamilyMapper.toFamily(savedFamily));
+        assertThat(savedFamily.getUsers()).hasSize(1)
+                .contains(user1.getId());
     }
 
     @Test
     void update() {
-        Family savedFamily = repository.save(getFamily());
-        FamilyDto forUpdate = new FamilyDto(savedFamily.getId(), "newName", new ArrayList<>());
+        Family family = getFamily();
+        repository.addUser(family.getId(), user1.getId());
+        FamilyDto forUpdate = new FamilyDto(family.getId(), "newName", new ArrayList<>());
 
-        service.update(savedFamily.getId(), forUpdate);
-        Optional<Family> fromRepo = repository.findById(savedFamily.getId());
+        service.update(family.getId(), forUpdate, user1.getId());
+        Optional<Family> fromRepo = repository.findById(family.getId());
 
         assertThat(fromRepo).isNotEmpty()
                 .get()
@@ -56,63 +70,64 @@ class FamilyServiceImplTest {
 
     @Test
     void get() {
-        Family family = repository.save(getFamily());
-        FamilyDto savedFamily = service.get(family.getId());
+        Family family = getFamily();
+        FamilyDto familyDto = FamilyMapper.toFamilyDto(family);
+        familyDto.getUsers().add(user1.getId());
+        repository.addUser(family.getId(), user1.getId());
+        FamilyDto savedFamily = service.get(family.getId(), user1.getId());
 
-        assertThat(savedFamily).isEqualTo(FamilyMapper.toFamilyDto(family, new ArrayList<>()));
+        assertThat(savedFamily).isEqualTo(familyDto);
     }
 
     @Test
     void delete() {
-        Family family = repository.save(getFamily());
-        Optional<Family> fromRepo = repository.findById(family.getId());
+        Family family = getFamily();
+        repository.addUser(family.getId(), user1.getId());
+
+        Optional<Family> fromRepo = repository.findByIdAndUserId(family.getId(), user1.getId());
+        System.out.println(repository.findAll());
 
         assertThat(fromRepo).isNotEmpty();
 
-        service.delete(family.getId());
-        Optional<Family> fromRepoAfterDelete = repository.findById(family.getId());
+        service.delete(family.getId(), user1.getId());
 
-        assertThat(fromRepoAfterDelete).isEmpty();
+        assertThat(repository.existsById(family.getId())).isFalse();
     }
 
     @Test
     void addUser() {
-        Family family = repository.save(getFamily());
-        User user1 = userRepository.save(new User(1L, "user1", "user1@email.com"));
-        User user2 = userRepository.save(new User(2L, "user2", "user2@email.com"));
+        Family family = getFamily();
+        repository.addUser(family.getId(), user1.getId());
+        FamilyDto familyDtoWithUser1 = service.get(family.getId(), user1.getId());
 
-        FamilyDto familyDtoEmptyUsers = service.get(family.getId());
+        assertThat(familyDtoWithUser1.getUsers()).hasSize(1);
 
-        assertThat(familyDtoEmptyUsers.getUsers()).isEmpty();
-
-        service.addUser(family.getId(), user1.getId());
-        FamilyDto familyDto = service.get(family.getId());
+        service.addUser(family.getId(), user2.getId(), user1.getId());
+        FamilyDto familyDto = service.get(family.getId(), user2.getId());
 
         assertThat(familyDto.getUsers())
                 .contains(user1.getId())
-                .doesNotContain(user2.getId());
+                .contains(user2.getId());
     }
 
     @Test
     void deleteUser() {
         Family family = repository.save(getFamily());
-        User user1 = userRepository.save(new User(1L, "user1", "user1@email.com"));
-        User user2 = userRepository.save(new User(2L, "user2", "user2@email.com"));
+        repository.addUser(family.getId(), user1.getId());
+        repository.addUser(family.getId(), user2.getId());
 
-        service.addUser(family.getId(), user1.getId());
-        service.addUser(family.getId(), user2.getId());
-        FamilyDto familyDto = service.get(family.getId());
+        FamilyDto familyDto = service.get(family.getId(), user1.getId());
 
         assertThat(familyDto.getUsers())
                 .contains(user1.getId())
                 .contains(user2.getId());
 
-        service.deleteUser(family.getId(), user1.getId());
-        FamilyDto familyDtoAfterDelete = service.get(family.getId());
+        service.deleteUser(family.getId(), user1.getId(), user2.getId());
+        FamilyDto familyDtoAfterDelete = service.get(family.getId(), user2.getId());
 
-        assertThat(familyDtoAfterDelete.getUsers())
-                .doesNotContain(user1.getId())
-                .contains(user2.getId());
+        assertThat(familyDtoAfterDelete.getUsers()).hasSize(1)
+                .contains(user2.getId())
+                .doesNotContain(user1.getId());
     }
 
     private FamilyDto getFamilyDto() {
@@ -120,6 +135,6 @@ class FamilyServiceImplTest {
     }
 
     private Family getFamily() {
-        return new Family(1L, "Ivanov", new ArrayList<>());
+        return repository.save(new Family(1L, "Ivanov", new ArrayList<>()));
     }
 }

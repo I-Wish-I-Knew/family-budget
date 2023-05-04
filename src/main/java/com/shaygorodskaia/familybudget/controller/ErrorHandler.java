@@ -21,6 +21,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handle(Throwable e) {
+        e.printStackTrace();
         return new ErrorResponse(e.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }

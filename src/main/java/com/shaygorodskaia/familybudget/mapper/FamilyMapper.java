@@ -5,7 +5,6 @@ import com.shaygorodskaia.familybudget.model.Family;
 import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @UtilityClass
 public class FamilyMapper {
@@ -14,7 +13,7 @@ public class FamilyMapper {
         return new Family(familyDto.getId(), familyDto.getName(), new ArrayList<>());
     }
 
-    public static FamilyDto toFamilyDto(Family family, List<Long> users) {
-        return new FamilyDto(family.getId(), family.getName(), users);
+    public static FamilyDto toFamilyDto(Family family) {
+        return new FamilyDto(family.getId(), family.getName(), new ArrayList<>());
     }
 }
